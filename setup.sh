@@ -81,11 +81,3 @@ ln -s /dev/null ~/.bash_history
 
 sudo rm -f /root/.bash_history
 sudo ln -s /dev/null /root/.bash_history
-
-sudo apt install -y ufw
-sudo ufw default deny incoming
-sudo ufw default allow outgoing
-sudo ufw allow ssh
-sudo ufw allow proto icmp from any to any
-sudo ufw --force enable
-sudo ufw status
