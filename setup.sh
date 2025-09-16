@@ -31,7 +31,7 @@ echo "alias upg='sudo apt upgrade'" >> ~/.bashrc
 echo "alias fupg='sudo apt full-upgrade'" >> ~/.bashrc
 echo "alias clean='sudo apt autoremove && sudo apt autoclean'" >> ~/.bashrc
 
-exec bash
+source ~/.bashrc
 
 searchsploit -u
 
