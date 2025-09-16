@@ -39,11 +39,10 @@ log_warn() {
     echo -e "${YELLOW}[!] $1${NC}"
 }
 
-# Function to log error messages (stderr)
+
+# Function to log error messages (for real command failures)
 log_error() {
-    while IFS= read -r line; do
-        echo -e "${RED}[ERROR] $line${NC}"
-    done
+    echo -e "${RED}[ERROR] $1${NC}"
 }
 
 # --- Pre-flight Checks ---
@@ -204,6 +203,23 @@ function install_third_party_tools() {
     else
         log_warn "AWS CLI is already installed. Skipping AWS CLI installation."
     fi
+}
+
+# 12. Install and Configure SSH Server
+function install_ssh_server() {
+    log_info "🔑 Installing and configuring OpenSSH server for password authentication..."
+    apt-get install -y openssh-server
+    log_info "Ensuring sshd_config allows password authentication..."
+    # Backup config
+    cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak
+    # Permit password authentication
+    sed -i 's/^#*PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config
+    sed -i 's/^#*PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config
+    log_info "Restarting ssh service..."
+    systemctl enable --now ssh
+    systemctl restart ssh
+    log_success "OpenSSH server installed and configured for password authentication."
+    log_info "You can now SSH into this machine using your username and password."
 }
 
 ## 5. Install Pwning and Cloud Pentesting Tools
@@ -393,20 +409,19 @@ function security_hardening() {
 # --- Main Execution ---
 
 # Trap all errors and print them in red
-trap 'echo "${RED}[ERROR] An error occurred on line $LINENO. Exiting.${NC}"' ERR
+set -e
+trap 'log_error "An error occurred on line $LINENO. Exiting."' ERR
 
 main() {
     clear
     log_info "Kali Linux Setup Script Initialized!"
-
-    # Redirect all stderr to log_error function
-    exec 2> >(log_error)
 
     system_init
     configure_dns
     install_apt_tools
     install_third_party_tools
     install_pentest_tools
+    install_ssh_server
     configure_services
     configure_wordlists
     configure_shell
