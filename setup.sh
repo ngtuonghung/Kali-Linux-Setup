@@ -447,6 +447,15 @@ main() {
     log_warn "For all changes (especially new aliases and PATH) to take effect, you must start a new shell session."
     log_info "You can do this by logging out and back in, rebooting, or opening a new terminal window."
     echo
+
+    # Prompt and reload shell for the user
+    read -p "Do you want to reload your shell now to apply changes? [y/N]: " reload_shell
+    if [[ "$reload_shell" =~ ^[Yy]$ ]]; then
+        log_info "Reloading shell with: exec bash"
+        exec bash
+    else
+        log_info "You can run 'exec bash' or 'source ~/.bashrc' manually to apply changes."
+    fi
 }
 
 main
