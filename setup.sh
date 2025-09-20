@@ -338,6 +338,19 @@ function configure_shell() {
         log_warn "'$USER_HOME/.local/bin' is already in the PATH in $BASHRC_PATH. Skipping."
     fi
 
+    # Add /snap/bin to PATH if not already present
+    log_info "Checking if /snap/bin is in PATH in $BASHRC_PATH..."
+    snap_bin_path_str='export PATH="/snap/bin:$PATH"'
+    if ! grep -qF "$snap_bin_path_str" "$BASHRC_PATH"; then
+        log_info "Adding /snap/bin to PATH in $BASHRC_PATH..."
+        echo "" >> "$BASHRC_PATH"
+        echo "# Add snap bin to PATH for snap applications like code" >> "$BASHRC_PATH"
+        echo "$snap_bin_path_str" >> "$BASHRC_PATH"
+        log_success "Added '/snap/bin' to PATH in .bashrc"
+    else
+        log_warn "'/snap/bin' is already in the PATH in $BASHRC_PATH. Skipping."
+    fi
+
     log_info "Updating Exploit-DB database (searchsploit -u)..."
     searchsploit -u
     log_success "Exploit-DB updated."
